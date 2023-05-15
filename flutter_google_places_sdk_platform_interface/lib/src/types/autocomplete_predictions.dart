@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../flutter_google_places_sdk_platform_interface.dart';
+
 part 'autocomplete_predictions.freezed.dart';
 part 'autocomplete_predictions.g.dart';
 
@@ -20,7 +22,7 @@ class AutocompletePrediction with _$AutocompletePrediction {
     required String placeId,
 
     /// the list of place types associated with the place referred to by getPlaceId()
-    // List<Place.Type> placeTypes;
+    List<PlaceType>? placeTypes,
 
     /// the primary text of a place.
     required String primaryText,
