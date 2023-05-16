@@ -11,7 +11,8 @@ enum PlaceField {
   AddressComponents,
   BusinessStatus,
   Id,
-  @JsonValue('LAT_LNG') Location,
+  @JsonValue('LAT_LNG')
+  Location,
   Name,
   OpeningHours,
   PhoneNumber,
@@ -21,7 +22,8 @@ enum PlaceField {
   Rating,
   Types,
   UserRatingsTotal,
-  @JsonValue('UTC_OFFSET') UTCOffset,
+  @JsonValue('UTC_OFFSET')
+  UTCOffset,
   Viewport,
   WebsiteUri,
 }

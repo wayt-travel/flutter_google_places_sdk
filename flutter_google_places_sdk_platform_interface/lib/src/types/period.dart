@@ -10,7 +10,7 @@ part 'period.g.dart';
 @freezed
 class Period with _$Period {
   const factory Period({
-    required TimeOfWeek open,
+    required TimeOfWeek? open,
     required TimeOfWeek? close,
   }) = _Period;
 

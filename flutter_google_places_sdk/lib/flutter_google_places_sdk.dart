@@ -23,7 +23,6 @@ export 'package:flutter_google_places_sdk_platform_interface/flutter_google_plac
         PhotoMetadata,
         Place,
         PlaceField,
-        PlaceFieldDescriptor,
         PlaceLocalTime,
         PlaceType,
         PlaceTypeDescriptor,
@@ -144,9 +143,16 @@ class FlutterGooglePlacesSdk {
   /// Note that different fields can incur different billing.
   ///
   /// For more info about billing: https://developers.google.com/maps/documentation/places/web-service/usage-and-billing
-  Future<FetchPlaceResponse> fetchPlace(String placeId,
-      {required List<PlaceField> fields}) {
-    return _addMethodCall(() => platform.fetchPlace(placeId, fields: fields));
+  Future<FetchPlaceResponse> fetchPlace(
+    String placeId, {
+    required List<PlaceField> fields,
+    bool? newSessionToken,
+  }) {
+    return _addMethodCall(() => platform.fetchPlace(
+          placeId,
+          fields: fields,
+          newSessionToken: newSessionToken,
+        ));
   }
 
   /// Fetches a photo of a place.

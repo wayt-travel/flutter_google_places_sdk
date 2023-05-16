@@ -16,6 +16,6 @@ class GooglePlacesImg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return placePhotoResponse.image!;
+    return Container(); //placePhotoResponse.image!;
   }
 }

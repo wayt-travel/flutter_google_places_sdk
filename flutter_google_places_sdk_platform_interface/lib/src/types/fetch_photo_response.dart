@@ -11,6 +11,6 @@ class FetchPlacePhotoResponse with _$FetchPlacePhotoResponse {
       FetchPlacePhotoResponseImage;
 
   /// Construct a photo response with image url
-  const factory FetchPlacePhotoResponse.imageUrl(String imageUrl) =
+  const factory FetchPlacePhotoResponse.imageUrl(String? imageUrl) =
       FetchPlacePhotoResponseImageUrl;
 }

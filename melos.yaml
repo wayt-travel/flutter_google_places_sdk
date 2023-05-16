@@ -1,0 +1,23 @@
+name: flutter_google_places_sdk
+repository: https://github.com/wayt-travel/flutter_google_places_sdk
+sdkPath: .fvm/flutter_sdk
+
+packages:
+  - flutter_google_places_sdk
+  - flutter_google_places_sdk_android
+  - flutter_google_places_sdk_http
+  - flutter_google_places_sdk_ios
+  - flutter_google_places_sdk_windows
+  - flutter_google_places_sdk_linux
+  - flutter_google_places_sdk_macos
+  - flutter_google_places_sdk_platform_interface
+  - flutter_google_places_sdk_web
+  - flutter_google_places_sdk_http
+
+scripts:
+  generate:
+      exec: dart run build_runner build --delete-conflicting-outputs
+      packageFilters:
+        dependsOn: build_runner
+  format:
+    exec: dart fix ./lib --apply && dart format ./lib

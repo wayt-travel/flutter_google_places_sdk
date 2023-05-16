@@ -1,0 +1,8 @@
+name: flutter_google_places_sdk
+
+environment:
+  sdk: '>=2.18.0 <3.0.0'
+dev_dependencies:
+  melos: ^3.0.1
+  flutter_lints: ^2.0.0
+  build_runner: ^2.3.3

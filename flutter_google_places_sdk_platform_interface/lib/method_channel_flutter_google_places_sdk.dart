@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_google_places_sdk_platform_interface/flutter_google_places_sdk_platform_interface.dart';
@@ -29,19 +27,21 @@ class FlutterGooglePlacesSdkMethodChannel
     return _channel.invokeMethod<void>('deinitialize');
   }
 
+  @override
   Future<void> updateSettings(String apiKey, {Locale? locale}) {
     return _invokeForSettings('updateSettings', apiKey, locale);
   }
 
-  Future<void> _invokeForSettings(String methodName, String apiKey, Locale? locale) {
+  Future<void> _invokeForSettings(
+      String methodName, String apiKey, Locale? locale) {
     return _channel.invokeMethod<void>(methodName, {
       'apiKey': apiKey,
       'locale': locale == null
           ? null
           : {
-        'country': locale.countryCode,
-        'language': locale.languageCode,
-      },
+              'country': locale.countryCode,
+              'language': locale.languageCode,
+            },
     });
   }
 
@@ -95,7 +95,7 @@ class FlutterGooglePlacesSdkMethodChannel
       'fetchPlace',
       {
         'placeId': placeId,
-        'fields': fields.map((e) => e.value).toList() ?? [],
+        'fields': fields.map((e) => e.value).toList(),
         'newSessionToken': newSessionToken,
       },
     ).then(_responseFromPlaceDetails);

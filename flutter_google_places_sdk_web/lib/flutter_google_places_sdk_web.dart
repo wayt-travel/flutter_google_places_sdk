@@ -100,6 +100,14 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
     return _completer?.isCompleted == true;
   }
 
+  AutocompleteSessionToken _getSessionToken({required bool force}) {
+    final localToken = _lastSessionToken;
+    if (force || localToken == null) {
+      return AutocompleteSessionToken();
+    }
+    return localToken;
+  }
+
   @override
   Future<FindAutocompletePredictionsResponse> findAutocompletePredictions(
     String query, {
@@ -116,13 +124,27 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
       // https://issuetracker.google.com/issues/36219203
       log("locationRestriction is not supported: https://issuetracker.google.com/issues/36219203");
     }
-    final prom = _svcAutoComplete!.getPlacePredictions(AutocompletionRequest()
-      ..input = query
-      ..origin = origin == null ? null : core.LatLng(origin.lat, origin.lng)
-      ..types = typeFilterStr == null ? null : [typeFilterStr]
-      ..componentRestrictions = (ComponentRestrictions()..country = countries)
-      ..bounds = _boundsToWeb(locationBias)
-      ..language = _language);
+
+    final sessionToken = _getSessionToken(force: newSessionToken == true);
+    final prom = _svcAutoComplete!.getPlacePredictions(
+      AutocompletionRequest()
+        ..input = query
+        ..origin = origin == null ? null : core.LatLng(origin.lat, origin.lng)
+        ..types = typeFilterStr == null ? null : [typeFilterStr]
+        ..componentRestrictions = (ComponentRestrictions()..country = countries)
+        ..bounds = _boundsToWeb(locationBias)
+        ..sessionToken = sessionToken
+        ..language = _language,
+      (results, status) {
+        if (status == PlacesServiceStatus.OK ||
+            status == PlacesServiceStatus.ZERO_RESULTS ||
+            status == PlacesServiceStatus.NOT_FOUND) {
+          _lastSessionToken = sessionToken;
+        } else {
+          log('API_ERROR: $status');
+        }
+      },
+    );
     final resp = await prom;
 
     final predictions = resp.predictions
@@ -160,6 +182,11 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
       primaryText: main_text ?? '',
       secondaryText: secondary_text ?? '',
       fullText: '$main_text, $secondary_text',
+      placeTypes: prediction.types
+          ?.whereType<String>()
+          .map((s) => s.toPlaceType())
+          .whereNotNull()
+          .toList(),
     );
   }
 
@@ -169,10 +196,11 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
     List<PlaceField>? fields,
     bool? newSessionToken,
   }) async {
+    final sessionToken = _getSessionToken(force: newSessionToken == true);
     final prom = _getDetails(PlaceDetailsRequest()
       ..placeId = placeId
       ..fields = fields?.map(this._mapField).toList(growable: false)
-      ..sessionToken = _lastSessionToken
+      ..sessionToken = sessionToken
       ..language = _language);
 
     final resp = await prom;
@@ -182,7 +210,7 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
   String _mapField(PlaceField field) {
     switch (field) {
       case PlaceField.Address:
-        return 'adr_address';
+        return 'formatted_address';
       case PlaceField.AddressComponents:
         return 'address_components';
       case PlaceField.BusinessStatus:
@@ -238,12 +266,13 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
     }
 
     return inter.Place(
-      address: place.adrAddress,
+      address: place.formattedAddress,
       addressComponents: place.addressComponents
           ?.map(_parseAddressComponent)
           .cast<AddressComponent>()
           .toList(growable: false),
-      businessStatus: _parseBusinessStatus(getProperty(place, 'business_status')),
+      businessStatus:
+          _parseBusinessStatus(getProperty(place, 'business_status')),
       attributions: place.htmlAttributions?.cast<String>(),
       latLng: _parseLatLang(place.geometry?.location),
       name: place.name,
@@ -274,8 +303,9 @@ class FlutterGooglePlacesSdkWebPlugin extends FlutterGooglePlacesSdkPlatform {
     }
 
     placeType = placeType.toUpperCase();
+
     return PlaceType.values.cast<PlaceType?>().firstWhere(
-        (element) => element!.value == placeType,
+        (element) => element!.name == placeType,
         orElse: () => null);
   }
 
